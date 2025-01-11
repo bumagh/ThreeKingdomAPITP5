@@ -5,10 +5,9 @@ namespace app\api\controller\v1;
 use app\api\controller\Base;
 use app\common\model\AdminModel;
 use app\common\model\CharacterModel;
-use app\common\model\ZoneModel;
 use think\Request;
 
-class Zone extends Base
+class Character extends Base
 {
     /**
      * 显示资源列表
@@ -19,9 +18,8 @@ class Zone extends Base
     {
         $limit = $request->param('limit') ? $request->param('limit') : 10;
         $page = $request->param('page') ? $request->param('page') : 1;
-        $aid = $this->aid;
-        $db = new ZoneModel();
-        $field = 'id,name,index,status,tag,player_counts';
+        $db = new CharacterModel();
+        $field = '*';
         return json($db->_lists($limit, $page, $field));
     }
 
@@ -115,32 +113,5 @@ class Zone extends Base
         //     return json(['code' => 0, 'msg' => '操作成功']);
         // else
         //     return json(['code' => 1, 'msg' => '操作失败']);
-    }
-    //选择区服
-    public function selZone(Request $request)
-    {
-        $data = $request->param();
-        if (!isset($data['zoneId']) || empty($data['zoneId'])) {
-            return json(['code' => 1, 'msg' => '区服不能为空']);
-        }
-        $zoneId = $data['zoneId'];
-        $zoneDb = new ZoneModel();
-        $zoneIdItem = $zoneDb->where('id', $zoneId)->find();
-        if (!$zoneIdItem)
-            return json(['code' => 2, 'msg' => '区服错误']);
-        $adminDb = new AdminModel();
-        $info = $adminDb->force()->save(['zone_id' => $zoneId], ['id' => $this->aid]);
-        if ($info) {
-            $characterDb = new CharacterModel();
-            $characterList = $characterDb->getListByAdminIdAndZoneId($this->aid, $zoneId);
-            return json([
-                'code' => 0,
-                'msg' => '选择区服成功',
-                'data' => [
-                    'characterList' => $characterList
-                ]
-            ]);
-        } else
-            return json(['code' => 3, 'msg' => '选择区服失败']);
     }
 }

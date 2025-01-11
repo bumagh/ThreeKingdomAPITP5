@@ -14,13 +14,9 @@ class Base extends Cross
         parent::initialize();
 
         $header = request()->header();
-        if (!isset($header['token'])) {
-            json(['code' => 0, 'msg' => '请先登录'])->send();
-            die();
-        }
-        if (empty($header['token'])) {
-            json(['code' => 0, 'msg' => '请先登录'])->send();
-            die();
+        if (!isset($header['token']) || empty($header['token'])) {
+            json(['code' => 1, 'msg' => '请先登录'])->send();
+            die;
         }
 
         $info = JWT::decode($header['token'], new Key('api', 'HS256'));

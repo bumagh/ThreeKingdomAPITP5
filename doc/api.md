@@ -77,8 +77,12 @@
 ## 3.选择区服
 ```json
 { 
-   zoneId:0,
-   userToken:"xxx"
+   zoneId:0
+}
+{
+    header:{
+         token:"xxx"
+    }
 }
 ```
 成功返回
