@@ -3,11 +3,11 @@
 namespace app\api\controller\v1;
 
 use app\api\controller\Base;
-use app\common\model\AdminModel;
-use app\common\model\CharacterModel;
+use app\common\model\SoldierModel;
 use think\Request;
+use think\db;
 
-class Character extends Base
+class Soldier extends Base
 {
     /**
      * 显示资源列表
@@ -18,7 +18,7 @@ class Character extends Base
     {
         $limit = $request->param('limit') ? $request->param('limit') : 10;
         $page = $request->param('page') ? $request->param('page') : 1;
-        $db = new CharacterModel();
+        $db = new SoldierModel();
         $field = '*';
         return json($db->_lists($limit, $page, $field));
     }
@@ -42,14 +42,23 @@ class Character extends Base
     public function save(Request $request)
     {
         $data = $request->param();
-        $db = new CharacterModel();
-        return json($db->_update($data));
+        $db = new SoldierModel();
+        if (isset($data['id']) && !empty($data['id'])) {
+            $res =  $db->save($data, ['id' => $data['id']]);
+        } else {
+            // $res =  $db->save($data);
+            $res = Db::name('soldier')->insertGetId($data);
+        }
+        if ($res) {
+            return json(['code' => 0, 'msg' => '操作成功', 'data' =>  $res]);
+        } else
+            return json(['code' => 1, 'msg' => '操作失败']);
     }
 
     public function incSave(Request $request)
     {
         $data = $request->param();
-        $db = new CharacterModel();
+        $db = new SoldierModel();
         return json($db->_incSave($data));
     }
 

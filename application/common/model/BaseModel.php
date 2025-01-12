@@ -26,6 +26,40 @@ class BaseModel extends Model
         } else
             return ['code' => 1, 'msg' => '操作失败'];
     }
+    public function _incSave($data)
+    {
+        if (isset($data['id']) && !empty($data['id'])) {
+            // 过滤增量字段
+            $incrementData = [];
+
+            // 遍历传入的增量数据，过滤出需要增量更新的字段
+            foreach ($data as $key => $value) {
+                // 假设增量字段名是以 'inc_' 开头，且值为增量值
+                if (strpos($key, 'inc_') === 0 && is_numeric($value)) {
+                    $field = substr($key, 4); // 去掉 'inc_' 前缀，得到实际字段名
+                    $incrementData[$field] = $value;
+                }
+            }
+
+            // 如果有增量字段，进行增量更新
+            if (!empty($incrementData)) {
+                $res = $this->where('id', $data['id'])->inc($incrementData)->update();
+            } else {
+                // 如果没有增量字段，直接保存
+                $res = $this->save($data, ['id' => $data['id']]);
+            }
+        } else {
+            // 如果没有 id 则直接保存
+            $res = $this->save($data);
+        }
+
+        if ($res) {
+            return ['code' => 0, 'msg' => '操作成功'];
+        } else {
+            return ['code' => 1, 'msg' => '操作失败'];
+        }
+    }
+
     public function _del($data)
     {
         $res = $this->where('id', $data)->delete();
