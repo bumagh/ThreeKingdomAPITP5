@@ -49,6 +49,7 @@ class BaseModel extends Model
                 $res = $this->save($data, ['id' => $data['id']]);
             }
         } else {
+
             // 如果没有 id 则直接保存
             $res = $this->save($data);
         }
