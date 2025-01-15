@@ -61,7 +61,28 @@ class Soldier extends Base
         $db = new SoldierModel();
         return json($db->_incSave($data));
     }
-
+    public function usePoint(Request $request)
+    {
+        $data = $request->param();
+        $db = new SoldierModel();
+        $db->_incSave($data);
+        $decVal = 0;
+        // 遍历传入的增量数据，过滤出需要增量更新的字段
+        foreach ($data as $key => $value) {
+            // 假设增量字段名是以 'inc_' 开头，且值为增量值
+            if (strpos($key, 'inc_') === 0 && is_numeric($value)) {
+                $decVal += $value;
+            }
+        }
+        $res = $db->_incSave([
+            'id' => $data['id'],
+            'inc_points' => -$decVal,
+        ]);
+        if ($res) {
+            return json(['code' => 0, 'msg' => '操作成功']);
+        } else
+            return json(['code' => 1, 'msg' => '操作失败']);
+    }
     /**
      * 显示指定的资源
      *
