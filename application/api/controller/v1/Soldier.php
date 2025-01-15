@@ -54,7 +54,12 @@ class Soldier extends Base
         } else
             return json(['code' => 1, 'msg' => '操作失败']);
     }
-
+    public function getByCharacterId(Request $request)
+    {
+        $db = new SoldierModel();
+        $data = $db->getListByCharacterId($request->param('character_id'));
+        return json(['code' => 0, 'msg' => '获取副将信息成功', 'data' => ['soldierItemList' => $data]]);
+    }
     public function incSave(Request $request)
     {
         $data = $request->param();
