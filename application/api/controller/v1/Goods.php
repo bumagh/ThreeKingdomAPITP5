@@ -21,7 +21,12 @@ class Goods extends Base
         $field = '*';
         return json($db->_lists($limit, $page, $field));
     }
-
+    public function getByBagId(Request $request)
+    {
+        $db = new GoodsModel();
+        $data = $db->getListByBagIdAndStatus($request->param('bag_id'), 1);
+        return json(['code' => 0, 'msg' => '获取物品信息成功', 'data' => ['bagItemDatas' => $data]]);
+    }
     /**
      * 显示创建资源表单页.
      *
