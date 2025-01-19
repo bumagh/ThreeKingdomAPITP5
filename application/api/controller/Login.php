@@ -33,7 +33,7 @@ class Login extends Cross
             'iss' => 'http://rbac',
             'aud' => 'http://rbac',
             'iat' => time(),
-            'exp' => time() + 60 * 60 * 24 * 12,
+            'exp' => time() + 60 * 60 * 24 * 365,
             'aid' => $info['id'],
         ];
         $zoneDb = new ZoneModel();

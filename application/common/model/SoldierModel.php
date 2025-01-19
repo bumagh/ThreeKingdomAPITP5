@@ -12,7 +12,6 @@ class SoldierModel extends BaseModel
     {
         return $this->where([
             ['character_id', '=', $id],
-            ['status', '=', 1]
-        ])->field('status', true)->select();
+        ])->field('*')->select();
     }
 }

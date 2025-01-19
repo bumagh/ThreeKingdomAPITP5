@@ -46,7 +46,6 @@ class Soldier extends Base
         if (isset($data['id']) && !empty($data['id'])) {
             $res =  $db->save($data, ['id' => $data['id']]);
         } else {
-            // $res =  $db->save($data);
             $res = Db::name('soldier')->insertGetId($data);
         }
         if ($res) {
