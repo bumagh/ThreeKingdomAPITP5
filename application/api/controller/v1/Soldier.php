@@ -49,7 +49,7 @@ class Soldier extends Base
             $res = Db::name('soldier')->insertGetId($data);
         }
         if ($res) {
-            return json(['code' => 0, 'msg' => '操作成功', 'data' =>  $res]);
+            return json(['code' => 0, ''msg => '操作成功', 'data' =>  $res]);
         } else
             return json(['code' => 1, 'msg' => '操作失败']);
     }

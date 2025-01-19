@@ -37,7 +37,7 @@ class Login extends Cross
             'aid' => $info['id'],
         ];
         $zoneDb = new ZoneModel();
-        $zoneList = $zoneDb->_lists(10, 1, 'id,name,index,status,tag,player_counts');
+        $zoneList = $zoneDb->_listCondi(10, 1, 'id,name,index,status,tag,player_counts', [['status', '=', 1]]);
         if (!isset($zoneList['data'])) {
             return json(['code' => 3, 'msg' => '数据错误']);
         }
@@ -47,6 +47,4 @@ class Login extends Cross
             'zoneList' => $zoneList['data']
         ]]);
     }
-
-  
 }
