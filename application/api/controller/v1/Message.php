@@ -26,7 +26,23 @@ class Message extends Base
         } else
             return json(['code' => 0, 'msg' => '没数据']);
     }
-
+    public function getlist(Request $request)
+    {
+        $limit = $request->param('limit') ? $request->param('limit') : 10;
+        $page = $request->param('page') ? $request->param('page') : 1;
+        $list =  Db::table('message')
+            ->alias('msg')
+            ->join('character cha', 'msg.character_id = cha.id')
+            ->field('msg.character_id,msg.zone_id,msg.content,msg.type,msg.create_time,cha.head,cha.gender,cha.name')
+            ->order('create_time DESC')
+            ->limit($limit)
+            ->select();
+        // $list = $db->limit($limit)->page($page)->order('create_time DESC')->field($field, true)->select();
+        if ($list) {
+            return json(['code' => 0, 'msg' => '获取成功', 'data' => $list]);
+        } else
+            return json(['code' => 0, 'msg' => '没数据']);
+    }
     /**
      * 显示创建资源表单页.
      *

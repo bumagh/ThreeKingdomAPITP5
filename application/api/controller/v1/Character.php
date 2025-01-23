@@ -6,6 +6,7 @@ use app\api\controller\Base;
 use app\common\model\AdminModel;
 use app\common\model\CharacterModel;
 use think\Request;
+use think\db;
 
 class Character extends Base
 {
@@ -66,7 +67,35 @@ class Character extends Base
         $db = new CharacterModel();
         return json($db->_update($data));
     }
+    public function add(Request $request)
+    {
+        $data = $request->param();
+        //先创建背包
+        $bagId =  Db::name('bag')->insertGetId([
+            'status' => 1,
+        ]);
+        if (!$bagId)
+            return json(['code' => 1, 'msg' => '角色创建失败,错误001']);
+        $newData = [
+            'admin_id' => $this->aid,
+            'zone_id' => $data['zone_id'],
+            'name' => $data['name'],
+            'bag_id' => $bagId,
+            'country' => $data['country'],
+            'job' => $data['job'],
+            'gender' => $data['gender'],
+            'head' => $data['head'],
+        ];
+        $characterId = Db::name('character')->insertGetId($newData);
+        if (!$characterId)
+            return json(['code' => 2, 'msg' => '角色创建失败,错误002']);
 
+        $dbCharacter = new CharacterModel();
+        $characterData = $dbCharacter->where([['id', '=', $characterId]])->field('admin_id,zone_id,hp,mp',true)->select();
+        if (empty($characterData))
+            return json(['code' => 3, 'msg' => '角色创建失败,错误003']);
+        return json(['code' => 0, 'msg' => '角色创建成功', 'data' => $characterData[0]]);
+    }
     public function incSave(Request $request)
     {
         $data = $request->param();
