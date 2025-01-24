@@ -53,15 +53,15 @@ class RegAdmin extends Cross
         if (!$bagId)
             return json(['code' => 4, 'msg' => '注册失败,未知错误003']);
         //创建一个角色
-        $dbCharacter = new CharacterModel();
-        $newData = [
-            'admin_id' => $res,
-            'name' => "玩家" . substr($data['username'], 0, 3),
-            'bag_id' => $bagId
-        ];
-        $res = $dbCharacter->_update($newData);
+        // $dbCharacter = new CharacterModel();
+        // $newData = [
+        //     'admin_id' => $res,
+        //     'name' => "玩家" . substr($data['username'], 0, 3),
+        //     'bag_id' => $bagId
+        // ];
+        // $res = $dbCharacter->_update($newData);
         if (!$res) {
-            return json(['code' => 4, 'msg' => '注册失败,未知错误002']);
+            return json(['code' => 5, 'msg' => '注册失败,未知错误002']);
         }
 
         return json(['code' => 0, 'msg' => '注册成功']);
