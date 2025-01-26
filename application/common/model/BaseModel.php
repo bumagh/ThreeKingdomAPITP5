@@ -87,4 +87,13 @@ class BaseModel extends Model
         } else
             return ['code' => 0, 'msg' => '没数据'];
     }
+    public function _listCondiOrder($limit, $page, $field, $condi,$order)
+    {
+        $list = $this->where($condi)->order($order)->limit($limit)->page($page)->field($field)->select();
+        if ($list) {
+            $count = $this->count('id');
+            return ['code' => 0, 'msg' => '获取成功', 'data' => $list, 'count' => $count];
+        } else
+            return ['code' => 0, 'msg' => '没数据'];
+    }
 }

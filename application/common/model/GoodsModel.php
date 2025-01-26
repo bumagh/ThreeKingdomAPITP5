@@ -12,7 +12,6 @@ class GoodsModel extends BaseModel
     {
         return $this->where([
             ['bag_id', '=', $id],
-            ['status', '=', 1]
-        ])->field('id,configid,count')->select();
+        ])->field('id,configid,count,status')->select();
     }
 }

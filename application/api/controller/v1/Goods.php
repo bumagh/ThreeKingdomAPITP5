@@ -5,6 +5,7 @@ namespace app\api\controller\v1;
 use app\api\controller\Base;
 use app\common\model\GoodsModel;
 use think\Request;
+use think\db;
 
 class Goods extends Base
 {
@@ -49,7 +50,28 @@ class Goods extends Base
         $db = new GoodsModel();
         return json($db->_update($data));
     }
-
+    public function equipconfig(Request $request)
+    {
+        $data = $request->param();
+        $bag_id = $data['bag_id'];
+        if (isset($data['upeqids'])) {
+            $upeqids = $data['upeqids'];
+            $db = new GoodsModel();
+            $res =  $db->save(['status' => 0], [['bag_id', '=', $bag_id], ['status', '=', 1]]);
+            if (!$res)
+                return json(['code' => 2, 'msg' => '装备配置失败']);
+            if (empty($data['upeqids']))
+                return json(['code' => 0, 'msg' => '装备配置成功']);
+            $upeqIdArr = explode(',', $upeqids);
+            foreach ($upeqIdArr as $key => $value) {
+                # code...
+                $db->update(['id' => $value, 'status' => 1]);
+            }
+            return json(['code' => 0, 'msg' => '装备配置成功']);
+        } else {
+            return json(['code' => 1, 'msg' => '装备配置失败']);
+        }
+    }
     public function incSave(Request $request)
     {
         $data = $request->param();
@@ -66,7 +88,17 @@ class Goods extends Base
 
         // 创建模型实例
         $db = new GoodsModel();
-
+        if (substr(strval($configid), 0, 1) == '6') {
+            //如果是装备类型,直接插入新的
+            $newgoodsid =  Db::name('goods')->insertGetId([
+                'bag_id' => $bag_id,
+                'configid' => $configid,
+                'count' => $count,
+            ]);
+            if (!$newgoodsid)
+                return json(['code' => 1, 'msg' => '物品同步服务器失败,错误001']);
+            return json(['code' => 0, 'msg' => '购买新的装备成功', 'data' => $newgoodsid]);
+        }
         // 查找是否存在相应的记录
         $goodsInfo = $db->where([
             ['bag_id', '=', $bag_id],

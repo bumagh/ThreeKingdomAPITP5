@@ -23,6 +23,16 @@ class Character extends Base
         $field = '*';
         return json($db->_lists($limit, $page, $field));
     }
+    public function getrank(Request $request)
+    {
+        $limit = $request->param('limit') ? $request->param('limit') : 10;
+        $page = $request->param('page') ? $request->param('page') : 1;
+        $zoneid = $request->param('zoneid');
+        $order = $request->Param('order') ? $request->Param('order') . ' DESC' : 'id ASC';
+        $db = new CharacterModel();
+        $field = '*';
+        return json($db->_listCondiOrder($limit, $page, $field, [['zone_id', '=', $zoneid]], $order));
+    }
     public function usePoint(Request $request)
     {
         $data = $request->param();
@@ -91,7 +101,7 @@ class Character extends Base
             return json(['code' => 2, 'msg' => '角色创建失败,错误002']);
 
         $dbCharacter = new CharacterModel();
-        $characterData = $dbCharacter->where([['id', '=', $characterId]])->field('admin_id,zone_id,hp,mp',true)->select();
+        $characterData = $dbCharacter->where([['id', '=', $characterId]])->field('admin_id,zone_id,hp,mp', true)->select();
         if (empty($characterData))
             return json(['code' => 3, 'msg' => '角色创建失败,错误003']);
         return json(['code' => 0, 'msg' => '角色创建成功', 'data' => $characterData[0]]);
