@@ -5,6 +5,7 @@ namespace app\api\controller\v1;
 use app\api\controller\Base;
 use app\common\model\AdminModel;
 use app\common\model\CharacterModel;
+use app\common\model\TaskModel;
 use think\Request;
 use think\db;
 
@@ -99,9 +100,18 @@ class Character extends Base
         $characterId = Db::name('character')->insertGetId($newData);
         if (!$characterId)
             return json(['code' => 2, 'msg' => '角色创建失败,错误002']);
-
+        //创建默认任务
+        $dbTask = new TaskModel();
+        $newTaskData = [
+            'character_id' => $characterId,
+            'configid' => 1001,
+            'status' => 1
+        ];
+        $res = $dbTask->_update($newTaskData);
+        if (!$res)
+        return json(['code' => 4, 'msg' => '任务创建失败,错误004']);
         $dbCharacter = new CharacterModel();
-        $characterData = $dbCharacter->where([['id', '=', $characterId]])->field('admin_id,zone_id,hp,mp', true)->select();
+        $characterData = $dbCharacter->where([['id', '=', $characterId]])->field('admin_id,zone_id', true)->select();
         if (empty($characterData))
             return json(['code' => 3, 'msg' => '角色创建失败,错误003']);
         return json(['code' => 0, 'msg' => '角色创建成功', 'data' => $characterData[0]]);
