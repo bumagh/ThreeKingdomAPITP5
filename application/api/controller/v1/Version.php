@@ -33,7 +33,7 @@ class Version extends Cross
         $page = $request->param('page') ? $request->param('page') : 1;
         $db = new VersionModel();
         $field = 'id';
-        $list = $db->limit($limit)->page($page)->order('id DESC')->field($field, true)->select();
+        $list = $db->limit($limit)->page($page)->order('id DESC')->select();
         if ($list) {
             return json(['code' => 0, 'msg' => '获取成功', 'data' => $list]);
         } else
