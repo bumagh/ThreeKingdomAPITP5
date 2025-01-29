@@ -8,4 +8,6 @@ class AdminRoleModel extends BaseModel
 {
     //
     protected $table = "admin_role";
+    protected $autoWriteTimestamp = 'datetime';
+
 }

@@ -51,7 +51,7 @@ class AdminRole extends Base
         $info = $db->where('admin_id', $admin_id)->find();
         if ($info) {
             //edit
-            $res = $db->where('admin_id', $admin_id)->setField('role_ids', $role_ids);
+            $res = $db->where('admin_id', $admin_id)->setField('role_id', $role_ids);
         } else {
             //add
             $data['admin_id'] = $admin_id;
@@ -98,7 +98,7 @@ class AdminRole extends Base
     {
         $admin_id = $request->param('admin_id');
         $db = new AdminRoleModel();
-        $info = $db->where('admin_id', $admin_id)->value('role_ids');
+        $info = $db->where('admin_id', $admin_id)->value('role_id');
         if ($info) {
             $role_ids = explode(',', $info);
             foreach ($role_ids as $key => $value) {
