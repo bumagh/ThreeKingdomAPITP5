@@ -17,7 +17,7 @@ class Version extends Cross
      */
     public function index(Request $request)
     {
-        $limit = $request->param('limit') ? $request->param('limit') : 10;
+        $limit = $request->param('limit') ? $request->param('limit') : 1;
         $page = $request->param('page') ? $request->param('page') : 1;
         $db = new VersionModel();
         $field = 'id';
@@ -25,9 +25,20 @@ class Version extends Cross
         if ($list) {
             return json(['code' => 0, 'msg' => '获取成功', 'data' => $list[0]]);
         } else
-            return json(['code' => 0, 'msg' => '没数据']);
+            return json(['code' => 1, 'msg' => '没数据']);
     }
-
+    public function newindex(Request $request)
+    {
+        $limit = $request->param('limit') ? $request->param('limit') : 1;
+        $page = $request->param('page') ? $request->param('page') : 1;
+        $db = new VersionModel();
+        $field = 'id';
+        $list = $db->limit($limit)->page($page)->order('id DESC')->field($field, true)->select();
+        if ($list) {
+            return json(['code' => 0, 'msg' => '获取成功', 'data' => $list]);
+        } else
+            return json(['code' => 1, 'msg' => '没数据']);
+    }
     /**
      * 显示创建资源表单页.
      *
