@@ -46,8 +46,6 @@ class Events
     {
         echo $messageSrc;
         $message = json_decode($messageSrc, true);
-        var_dump($message['method']);
-yield
         $message_type = $message['method'] ?? null;
         switch ($message_type) {
             case WsApiEnum::WsPing:
