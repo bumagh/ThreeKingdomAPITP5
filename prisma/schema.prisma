@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 账号（玩家/管理员）
+model Admin {
+  id          Int        @id @default(autoincrement())
+  username    String     @unique
+  password    String     // MD5 兼容旧系统，后续迁移到 bcrypt
+  status      Int        @default(1) // 1:正常 0:禁用
+  zone_id     Int?
+  create_time DateTime   @default(now())
+  update_time DateTime   @updatedAt
+  zone        Zone?      @relation(fields: [zone_id], references: [id])
+
+  // 关联
+  characters  Character[]
+  bags        Bag[]
+  invites     Invite[]
+  adminRoles  AdminRole[]
+}
+
+// 区服
+model Zone {
+  id             Int        @id @default(autoincrement())
+  name           String
+  index          Int        @unique
+  status         Int        @default(1) // 1:开放 0:关闭
+  tag            String?
+  player_counts  Int        @default(0)
+  create_time    DateTime   @default(now())
+  update_time    DateTime   @updatedAt
+
+  // 关联
+  admins         Admin[]
+  characters     Character[]
+  messages       Message[]
+}
+
+// 游戏角色
+model Character {
+  id           Int        @id @default(autoincrement())
+  admin_id     Int
+  zone_id      Int
+  bag_id       Int        @unique
+  name         String
+  status       Int        @default(1) // 1:正常 0:禁用
+  level        Int        @default(1)
+  exp          Int        @default(0)
+  coin         Int        @default(0)
+  points       Int        @default(0) // 属性点
+  hp           Int        @default(0)
+  mp           Int        @default(0)
+  hppoint      Int        @default(0) // HP加点
+  mppoint      Int        @default(0) // MP加点
+  atkpoint     Int        @default(0) // 攻击加点
+  sppoint      Int        @default(0) // 速度加点
+  country      Int        // 国家
+  job          Int        // 职业
+  gender       Int        // 性别
+  head         Int        // 头像
+  create_time  DateTime   @default(now())
+  update_time  DateTime   @updatedAt
+
+  // 关联
+  admin        Admin      @relation(fields: [admin_id], references: [id])
+  zone         Zone       @relation(fields: [zone_id], references: [id])
+  bag          Bag        @relation(fields: [bag_id], references: [id])
+  soldiers     Soldier[]
+  tasks        Task[]
+  messages     Message[]
+}
+
+// 背包
+model Bag {
+  id           Int        @id @default(autoincrement())
+  admin_id     Int?
+  character_id Int?       @unique
+  soldiermax   Int        @default(10) // 副将上限
+  battlemax    Int        @default(2)  // 出战上限
+  status       Int        @default(1)
+  create_time  DateTime   @default(now())
+  update_time  DateTime   @updatedAt
+
+  // 关联
+  admin        Admin?      @relation(fields: [admin_id], references: [id])
+  character    Character?
+  goods        Goods[]
+}
+
+// 背包物品
+model Goods {
+  id          Int        @id @default(autoincrement())
+  bag_id      Int
+  configid    Int        // 配置ID
+  count       Int        @default(1)
+  status      Int        @default(0) // 1:装备中/上阵 0:背包中
+  create_time DateTime   @default(now())
+  update_time DateTime   @updatedAt
+
+  // 关联
+  bag         Bag        @relation(fields: [bag_id], references: [id])
+}
+
+// 副将
+model Soldier {
+  id           Int        @id @default(autoincrement())
+  character_id Int
+  config_id    Int        // 配置ID
+  status       Int        @default(1)
+  level        Int        @default(1)
+  exp          Int        @default(0)
+  points       Int        @default(0) // 属性点
+  hppoint      Int        @default(0)
+  mppoint      Int        @default(0)
+  atkpoint     Int        @default(0)
+  sppoint      Int        @default(0)
+  hp           Int        @default(0)
+  mp           Int        @default(0)
+  job          Int
+  country      Int
+  create_time  DateTime   @default(now())
+  update_time  DateTime   @updatedAt
+
+  // 关联
+  character    Character  @relation(fields: [character_id], references: [id])
+}
+
+// 任务
+model Task {
+  id           Int        @id @default(autoincrement())
+  character_id Int
+  configid     Int        // 任务配置ID
+  status       Int        @default(1) // 1:进行中 2:完成
+  create_time  DateTime   @default(now())
+  update_time  DateTime   @updatedAt
+
+  // 关联
+  character    Character  @relation(fields: [character_id], references: [id])
+}
+
+// 聊天消息
+model Message {
+  id           Int        @id @default(autoincrement())
+  character_id Int
+  zone_id      Int
+  content      String
+  type         Int        @default(0)
+  status       Int        @default(0)
+  create_time  DateTime   @default(now())
+
+  // 关联
+  character    Character  @relation(fields: [character_id], references: [id])
+  zone         Zone       @relation(fields: [zone_id], references: [id])
+}
+
+// 版本信息
+model Version {
+  id          Int        @id @default(autoincrement())
+  version     String     @unique
+  content     String?
+  create_time DateTime   @default(now())
+}
+
+// 邀请码
+model Invite {
+  id          Int        @id @default(autoincrement())
+  admin_id    Int?
+  invitee_id  Int?
+  invitecode  String     @unique
+  status      Int        @default(1) // 1:可用 0:已使用
+  create_time DateTime   @default(now())
+  update_time DateTime   @updatedAt
+
+  // 关联
+  admin       Admin?     @relation(fields: [admin_id], references: [id])
+}
+
+// RBAC 权限角色
+model Role {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  status      Int        @default(1)
+  create_time DateTime   @default(now())
+  update_time DateTime   @updatedAt
+
+  // 关联
+  adminRoles  AdminRole[]
+  roleRules   RoleRule[]
+}
+
+// RBAC 权限规则
+model Rule {
+  id          Int        @id @default(autoincrement())
+  name        String
+  pid         Int        @default(0) // 父ID
+  url         String?
+  img         String?
+  status      Int        @default(1)
+  create_time DateTime   @default(now())
+  update_time DateTime   @updatedAt
+
+  // 关联
+  roleRules   RoleRule[]
+}
+
+// 管理员-角色关联
+model AdminRole {
+  id        Int      @id @default(autoincrement())
+  admin_id  Int      @unique
+  role_ids  String   // 逗号分隔的角色ID列表
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  // 关联
+  admin     Admin    @relation(fields: [admin_id], references: [id])
+  roles     Role[]
+}
+
+// 角色-规则关联
+model RoleRule {
+  id        Int      @id @default(autoincrement())
+  role_id   Int      @unique
+  rule_ids  String   // 逗号分隔的规则ID列表
+  create_time DateTime @default(now())
+  update_time DateTime @updatedAt
+
+  // 关联
+  role      Role     @relation(fields: [role_id], references: [id])
+  rules     Rule[]
+}
